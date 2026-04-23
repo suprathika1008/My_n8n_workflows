@@ -1,0 +1,1000 @@
+{
+  "name": "Multi Agent System(Telegram Assistant)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "1952491f-30bc-4c59-bc4a-ac43cb9fce55",
+      "name": "Telegram Trigger",
+      "webhookId": "5288a8df-f0db-4c5b-8943-249cb7e16403",
+      "credentials": {
+        "telegramApi": {
+          "id": "s7eivaMspe57NnBG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "70d2cefa-2764-4d57-9cca-004542ff6fe2",
+              "leftValue": "={{ $json.message.from.id }}",
+              "rightValue": 8579373806,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "13601c57-183c-454c-bc24-f2b622725799",
+              "leftValue": "={{ $json.message.from.id }}",
+              "rightValue": 5178423546,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -16
+      ],
+      "id": "3d502520-3813-4065-840e-3136e72495f0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        656,
+        448
+      ],
+      "id": "e037babf-e392-468a-9442-584c83b5b9ba",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "IWv9GMID0mN51VqI",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}",
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        560
+      ],
+      "id": "ffb1e5c8-58e1-41be-a52e-016727cd9e2f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1104,
+        576
+      ],
+      "id": "a97191f0-f299-4a0c-82eb-ff40ea0ca08e",
+      "name": "Get many messages in Gmail",
+      "webhookId": "e9657f23-f4e6-4a81-a49b-9245ae6c86f4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1648MDAaumPeIsOd",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        416
+      ],
+      "id": "3f999669-6b4d-44c4-a259-693ec6b9f26b",
+      "name": "Send a message in Gmail",
+      "webhookId": "e9657f23-f4e6-4a81-a49b-9245ae6c86f4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1648MDAaumPeIsOd",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1360,
+        448
+      ],
+      "id": "b2040a79-9427-4379-a354-279b06b9929d",
+      "name": "Create a draft in Gmail",
+      "webhookId": "e9657f23-f4e6-4a81-a49b-9245ae6c86f4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1648MDAaumPeIsOd",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1536,
+        416
+      ],
+      "id": "c268e325-42dd-49fc-aad4-7947c3cbf6cc",
+      "name": "Delete a message in Gmail",
+      "webhookId": "e9657f23-f4e6-4a81-a49b-9245ae6c86f4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1648MDAaumPeIsOd",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1664,
+        416
+      ],
+      "id": "2ab0f02a-001b-4ef5-b582-e0bf1362f087",
+      "name": "Reply to a message in Gmail",
+      "webhookId": "f243268d-8234-4d9d-9087-05233fab2040",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1648MDAaumPeIsOd",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}",
+        "replyMarkup": "forceReply",
+        "forceReply": {
+          "selective": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Selective', ``, 'boolean') }}"
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "message_thread_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_Thread_ID', ``, 'number') }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegramTool",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        416
+      ],
+      "id": "830bb319-558d-4299-ad30-ff389cd5f9a5",
+      "name": "Send a text message in Telegram",
+      "webhookId": "b97a92f2-5919-4ab4-a3bd-8c17bd043efc",
+      "credentials": {
+        "telegramApi": {
+          "id": "s7eivaMspe57NnBG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are a master orchestrator who handles sub agents\n\n1. If user command is related to email, use email agent tool\n2. If user command is related to calendar, use calendar agent tool\n3. If user command is related to meeting, use meeting agent tool\n\nIf user asks for any other request, use the agents in the order of requirement as per your reasoning. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1280,
+        -16
+      ],
+      "id": "39e4392c-8053-4848-b17b-f1806daea862",
+      "name": "Master Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        208
+      ],
+      "id": "bd10f439-5591-408f-8347-732b39410f13",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "IWv9GMID0mN51VqI",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}",
+        "contextWindowLength": 1000
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1136,
+        208
+      ],
+      "id": "fcaec74e-eb5b-4d6e-aa28-4b5f975965e8",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "toolDescription": "This handles all things email",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=You are a helpful email assistant who does all things email -\n\n1. If user asks for sending an email, use the send message tool\n2. If user asks for drafting an email, use the draft message tool\n3. If user either asks for read/summary/get some number of emails, use get many messages tool\n4. If user either asks for reply to a thread or delete an email -\n  a. First fetch the email via get message tool, extract the message ID of that email\n  b. Use that message ID dynamically in the respective reply/delete tools as per the user instructions\n\n\n5. Every time, send the response using the Send a text message in Telegram. Whether what should be the execution, respond accordingly with the help of the Send a text message in Telegram every time whenever you execute any task with any of the steps. \n\nFor every progess or action you make, update the user back via telegram tool"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        208
+      ],
+      "id": "c1ddc0a0-9ad5-431e-9fb9-ddb38609a9a2",
+      "name": "Email Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "This handles all things calendar",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=You are a calendar expert, who does all things calendar.For every action related to calendar, use the currentDate from Date & time tool. \n\n1. If the user asks to create an event, use the create event tool\n2. If the user asks to availability of a slot, use the availability tool\n3. If the user asks to fetch/get events from the calendar, use the get many events tool\n4. If user asks to delete event -\n  a. first get the event id of the event using, get many events tool\n  b. then use that extracted event id to delete the event via delete event tool\n\nFor every progress or action you take, update the user back via telegram node. \n\n5- Every time, send the response using the Telegram tool. Whether what should be the execution, respond accordingly with the help of the Telegram tool every time whenever you execute any task with any of the steps."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2288,
+        208
+      ],
+      "id": "c6712116-a8c2-4a12-b6f0-28b8983b88c7",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegramTool",
+      "typeVersion": 1.2,
+      "position": [
+        2048,
+        688
+      ],
+      "id": "18daef42-0e65-4793-8006-a225a53566e0",
+      "name": "Send a text message in Telegram1",
+      "webhookId": "b97a92f2-5919-4ab4-a3bd-8c17bd043efc",
+      "credentials": {
+        "telegramApi": {
+          "id": "s7eivaMspe57NnBG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1840,
+        208
+      ],
+      "id": "99982a54-9496-4555-83c9-a6d85a8e3e47",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "IWv9GMID0mN51VqI",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1984,
+        416
+      ],
+      "id": "368d6074-a8ca-42bb-95ab-ebbe7531257c",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "kadapalasuprathika@gmail.com",
+          "mode": "list",
+          "cachedResultName": "kadapalasuprathika@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2320,
+        624
+      ],
+      "id": "a8b90642-05cd-4f18-9f7a-163d6bfbeec5",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "gkcwGxKO5w4PrMyB",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "kadapalasuprathika@gmail.com",
+          "mode": "list",
+          "cachedResultName": "kadapalasuprathika@gmail.com"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2464,
+        592
+      ],
+      "id": "c27fda65-30bd-4d84-88d2-39ba577e3242",
+      "name": "Get many events in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "gkcwGxKO5w4PrMyB",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "kadapalasuprathika@gmail.com",
+          "mode": "list",
+          "cachedResultName": "kadapalasuprathika@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2560,
+        416
+      ],
+      "id": "2dadea53-1f83-45b9-af47-f58ef82297e2",
+      "name": "Delete an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "gkcwGxKO5w4PrMyB",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "kadapalasuprathika@gmail.com",
+          "mode": "list",
+          "cachedResultName": "kadapalasuprathika@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2688,
+        576
+      ],
+      "id": "f84db137-b8d4-42cd-b1ad-e8dabb0b2654",
+      "name": "Get availability in a calendar in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "gkcwGxKO5w4PrMyB",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        2816,
+        416
+      ],
+      "id": "a7f1cd3e-20eb-40a8-90dd-b469eeb1a567",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "toolDescription": "This agent handles all things meeting",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=You are a meeting assistant that does all things meetings and transcripts. For every action, you need to follow the below steps  - \n\n1. First get the list of transcripts from the list of transcripts tool and extract the \"transcript id\" for the relevant meeting as per the user request. \n\n2. Use the extarcted transcript id to construct the body of the get a transcript tool as follows by replacing the id in the placeholder mentioned - \n\n\"{\n  \"query\": \"query Transcript($transcriptId: String!){ transcript(id: $transcriptId){ id title date transcript_url audio_url video_url duration speakers{ id name } analytics{ sentiments{ positive_pct neutral_pct negative_pct } } sentences{ index speaker_name speaker_id start_time end_time text } summary{ short_summary topics_discussed action_items } }}\",\n  \"variables\": {\n    \"transcriptId\": \"<REPLACE_WITH_ID_FROM_STEP_1>\"\n  }\n}\"\n\nFor every action or progress you make, update the user back to telegram. \n3-Every time, send the response using the Telegram tool. Whether what should be the execution, respond accordingly with the help of the Telegram tool every time whenever you execute any task with any of the steps."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        3168,
+        208
+      ],
+      "id": "f3a7db99-5678-42c3-8351-625e0ab5a24e",
+      "name": "Meeting Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3280,
+        544
+      ],
+      "id": "ad2bf19d-a56a-4b2f-9b50-a32755e42223",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "IWv9GMID0mN51VqI",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2960,
+        304
+      ],
+      "id": "84ea7903-ebfc-4999-b96c-734228cc6433",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegramTool",
+      "typeVersion": 1.2,
+      "position": [
+        3072,
+        432
+      ],
+      "id": "8fa4ad60-a2bd-4d3a-8947-e43a04ae27dd",
+      "name": "Send a text message in Telegram2",
+      "webhookId": "b97a92f2-5919-4ab4-a3bd-8c17bd043efc",
+      "credentials": {
+        "telegramApi": {
+          "id": "s7eivaMspe57NnBG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireflies.ai/graphql",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 67d3d760-a920-4f17-98b5-c2f6f1d3d9b7"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "query { transcripts { id title date } }"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        3328,
+        416
+      ],
+      "id": "ba11c2b0-e26c-4895-8401-2a3e3d6b5c9a",
+      "name": "Get list of transcripts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireflies.ai/graphql",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 67d3d760-a920-4f17-98b5-c2f6f1d3d9b7 "
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "query { transcripts { id title date } }"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        3584,
+        336
+      ],
+      "id": "cf90ebc9-2d09-4e2a-b9eb-4af874b49044",
+      "name": "Get Transcript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message in Telegram": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message in Telegram1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get availability in a calendar in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message in Telegram2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get list of transcripts": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcript": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2a55cf7c-d710-476c-be7d-c8bf325e594b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fe24d3f622fae90832c7120813460cff353d00b102942cc25b782b1ff4c15a09"
+  },
+  "id": "pclhUnichbsfHcKv",
+  "tags": []
+}
