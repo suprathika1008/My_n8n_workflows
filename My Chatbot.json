@@ -1,0 +1,456 @@
+{
+  "name": "My Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "=# Role\n\nYou are PoultryMall AI, an intelligent assistant for poultry farmers, traders, distributors, and retailers.\n\nYour job is to answer user questions accurately by selecting the correct tool whenever needed.\n\nNever guess or invent information.\n\n---\n\n# Available Tools\n\n## 1. get_market_price\n\nPurpose:\nReturns today's LIVE egg market prices from the PoultryMall Market API.\n\nUse this tool ONLY when the user asks for:\n\n- Today's egg price\n- Current egg rate\n- Live market rate\n- Egg price in a city\n- Hyderabad egg price\n- Pune egg rate\n- Chennai market price\n- Vijayawada egg rate\n- Compare today's prices between cities\n\nDo NOT use this tool for:\n\n- Poultry farming\n- Broiler farming\n- Layer farming\n- Feed\n- FCR\n- Vaccination\n- Bird diseases\n- Market insights\n- Why prices change\n- How prices are updated\n- FAQs\n\nAfter receiving the tool response:\n\n- Find the requested city.\n- Return only that city's information.\n- If no city is mentioned, return the national/default market rates.\n- Never invent prices.\n- If the city is unavailable, politely say that no live price is available.\n\n---\n\n## 2. knowledge_base\n\nPurpose:\nAnswer questions using the PoultryMall knowledge base.\n\nUse this tool for:\n\n- Poultry farming\n- Broiler farming\n- Layer farming\n- Feed management\n- Feed Conversion Ratio (FCR)\n- Vaccination schedules\n- Bird diseases\n- Biosecurity\n- Poultry business\n- Market trends\n- FAQs\n- How egg prices are updated\n- Why egg prices increase or decrease\n- Company policies\n- Shipping\n- Support\n\nAlways answer using the retrieved documents.\n\nIf no relevant documents are found, reply:\n\n\"I couldn't find that information in the knowledge base.\"\n\nDo not make up information.\n\n---\n\n# General Conversation\n\nIf the user says:\n\n- Hi\n- Hello\n- Good morning\n- Thanks\n- Who are you?\n\nAnswer naturally without calling any tool.\n\n---\n\n# Rules\n\n1. Choose the correct tool based on the user's intent.\n2. Never call both tools unless absolutely necessary.\n3. Never call get_market_price for knowledge questions.\n4. Never answer live price questions without using get_market_price.\n5. Never invent prices or facts.\n6. Keep responses clear, short, and conversational.\n7. Use Markdown formatting when appropriate.\n"
+        }
+      },
+      "id": "e7a00f86-54ad-4dce-85df-06366e68df60",
+      "name": "PoultryMall Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -256,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $('Chat Webhook').item.json.body.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "id": "5545a691-c5e9-49e5-8edb-60bf2866acc8",
+      "name": "Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Get today's LIVE egg / poultry market rates for India. Returns a list of markets (cities) with today's price, average, and change. Use this ONLY when the user asks for a current / today / live egg price or market rate for a city (e.g. Hyderabad, Pune). Read the returned list and report the price for the city the user asked about.",
+        "url": "https://poultry-mall-v1-k8tj.vercel.app/api/market-rates?country=IN",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "id": "8fc6ef88-1310-4546-9d56-ecf30bc981ef",
+      "name": "get_market_price",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -128,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "description": "=Search the PoultryMall Knowledge Base for trusted poultry information.\n\nUse this tool ONLY when the user asks about:\n\n• Poultry farming\n• Broiler farming\n• Layer farming\n• Feed management\n• Feed Conversion Ratio (FCR)\n• Vaccination schedules\n• Bird diseases\n• Biosecurity\n• Poultry housing and equipment\n• Poultry business guidance\n• Market insights and trends\n• Why egg prices increase or decrease\n• How egg prices are calculated or updated\n• Frequently Asked Questions (FAQs)\n• Company information\n• Shipping and support\n\nDo NOT use this tool for:\n• Today's egg price\n• Current/live egg rate\n• Egg price in a specific city\n• Market prices for today\n\nAlways search the knowledge base before answering.\n\nInput should be the user's complete question.\n\nIf no relevant information is found, reply:\n\"I couldn't find that information in the PoultryMall knowledge base.\"\n\nNever make up information that is not present in the retrieved documents.",
+        "topK": 5
+      },
+      "id": "72c3aae6-caf8-476f-964e-bb2d4584b6ae",
+      "name": "knowledge_base",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "fc648ece-d278-45ad-a285-1927416bbf7b",
+      "name": "KB Tool Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        400
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "poultry-knowledge",
+          "mode": "list",
+          "cachedResultName": "poultry-knowledge"
+        },
+        "options": {
+          "pineconeNamespace": "poultry_docs"
+        }
+      },
+      "id": "42700fd6-3ea0-47f7-920c-d6cfe99a8b39",
+      "name": "Knowledge Base Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        400
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "jG5HpoWdvvr6BGSF",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "e66369eb-b707-480e-91c7-e329895f3e65",
+      "name": "Query Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        608
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.output } }}",
+        "options": {}
+      },
+      "id": "98edd7e5-fa0f-4e7e-9713-01ff5f53fffc",
+      "name": "Respond To User",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        352,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "Poultry Knowledge Base — Upload Documents",
+        "formDescription": "Upload poultry guides / documents (PDF, DOCX, TXT, CSV, MD). They will be indexed into the chatbot knowledge base.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Documents",
+              "fieldType": "file",
+              "fieldName": "documents",
+              "acceptFileTypes": ".pdf,.docx,.txt,.csv,.md",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "ce859374-fcd0-4ad1-a186-e7a8218cf174",
+      "name": "Upload Documents",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -608,
+        1024
+      ],
+      "webhookId": "06ec9afe-8e28-49f7-af69-6eb8517e3f24"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "poultry-knowledge",
+          "cachedResultName": "poultry-knowledge"
+        },
+        "options": {
+          "pineconeNamespace": "poultry_docs"
+        }
+      },
+      "id": "66ff1628-892a-4621-b769-658e5eccc01b",
+      "name": "Index Into Knowledge Base",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        1024
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "jG5HpoWdvvr6BGSF",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3c1dd365-4813-4428-881d-9e947e47db57",
+      "name": "Ingest Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        1248
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "id": "b63f5026-b239-4d3a-8e3e-48a1450b7615",
+      "name": "Document Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 150,
+        "options": {}
+      },
+      "id": "6f8a2304-d913-46f5-b038-901a0c04f773",
+      "name": "Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        272
+      ],
+      "id": "0c729be9-29a3-4c72-83e7-77469004d398",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "97e75a6b-47e5-4010-b789-4076544b4866",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -624,
+        -64
+      ],
+      "id": "831c2f47-44cb-4e63-b8bd-ee7714cc521c",
+      "name": "Webhook",
+      "webhookId": "97e75a6b-47e5-4010-b789-4076544b4866"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "PoultryMall Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond To User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "PoultryMall Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_market_price": {
+      "ai_tool": [
+        [
+          {
+            "node": "PoultryMall Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "knowledge_base": {
+      "ai_tool": [
+        [
+          {
+            "node": "PoultryMall Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB Tool Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "knowledge_base",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge Base Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "knowledge_base",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Knowledge Base Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Documents": {
+      "main": [
+        [
+          {
+            "node": "Index Into Knowledge Base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Index Into Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Index Into Knowledge Base",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Document Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "PoultryMall Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "PoultryMall Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "dad17775-3db8-418a-bd92-71a8f3e324a2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59e6c2434d0b1303b0a1f65470b604104fc4111ade072339a26ea5d2e26b4c89"
+  },
+  "nodeGroups": [],
+  "id": "p76bTzXT6eRrh8LJ",
+  "tags": []
+}
