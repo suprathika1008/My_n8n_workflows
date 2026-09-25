@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PoultryMall AI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f4f7f9;
+        }
+
+        /* =========================
+           AI BUTTON
+        ========================= */
+
+        .ai-button {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+
+            width: 65px;
+            height: 65px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: #198754;
+            color: white;
+
+            font-size: 30px;
+
+            cursor: pointer;
+
+            box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+
+            z-index: 9999;
+        }
+
+        .ai-button:hover {
+            transform: scale(1.05);
+        }
+
+
+        /* =========================
+           CHAT BOX
+        ========================= */
+
+        .chat-box {
+            position: fixed;
+
+            right: 25px;
+            bottom: 100px;
+
+            width: 380px;
+            height: 550px;
+
+            background: white;
+
+            border-radius: 18px;
+
+            box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+
+            overflow: hidden;
+
+            display: none;
+
+            z-index: 9998;
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .chat-header {
+            height: 70px;
+
+            background: #198754;
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 15px 18px;
+        }
+
+        .chat-title {
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .ai-icon {
+            font-size: 28px;
+        }
+
+        .chat-title h3 {
+            font-size: 18px;
+        }
+
+        .chat-title p {
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .close-button {
+            border: none;
+
+            background: transparent;
+
+            color: white;
+
+            font-size: 25px;
+
+            cursor: pointer;
+        }
+
+
+        /* =========================
+           N8N CHAT
+        ========================= */
+
+        #n8n-chat {
+            width: 100%;
+            height: calc(100% - 70px);
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 500px) {
+
+            .chat-box {
+                right: 10px;
+                bottom: 90px;
+
+                width: calc(100% - 20px);
+
+                height: 500px;
+            }
+
+            .ai-button {
+                right: 15px;
+                bottom: 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         AI BOT BUTTON
+    ========================= -->
+
+    <button
+        class="ai-button"
+        id="aiButton"
+        onclick="openChat()">
+
+        🤖
+
+    </button>
+
+
+
+    <!-- =========================
+         CHAT BOX
+    ========================= -->
+
+    <div
+        class="chat-box"
+        id="chatBox">
+
+
+        <!-- HEADER -->
+
+        <div class="chat-header">
+
+            <div class="chat-title">
+
+                <div class="ai-icon">
+                    🤖
+                </div>
+
+                <div>
+
+                    <h3>PoultryMall AI</h3>
+
+                    <p>AI Poultry Assistant</p>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="close-button"
+                onclick="closeChat()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <!-- N8N CHAT -->
+
+        <div id="n8n-chat"></div>
+
+    </div>
+
+
+
+    <!-- =========================
+         N8N CHAT
+    ========================= -->
+
+    <script type="module">
+
+        import { createChat } from
+        "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
+
+
+        createChat({
+
+            webhookUrl:
+            "https://suprathika.app.n8n.cloud/webhook/60a4305f-9d60-4d1d-abd6-438988212927/chat",
+
+            target:
+            "#n8n-chat",
+
+            mode:
+            "fullscreen",
+
+            showWelcomeScreen:
+            true,
+
+            initialMessages: [
+                "Hi, I am AI Assistant. How can I help you?"
+            ]
+
+        });
+
+    </script>
+
+
+
+    <!-- =========================
+         OPEN CHAT
+    ========================= -->
+
+    <script>
+
+        function openChat() {
+
+            document.getElementById("chatBox").style.display =
+                "block";
+
+            document.getElementById("aiButton").style.display =
+                "none";
+
+        }
+
+
+        function closeChat() {
+
+            document.getElementById("chatBox").style.display =
+                "none";
+
+            document.getElementById("aiButton").style.display =
+                "block";
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>
